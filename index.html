@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Permission to Save | Budget Planner & Shopping List</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-icon">💳</div>
+        <div>
+          <h1>Permission to Save</h1>
+          <p>Budget Planner & Shopping List</p>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <p class="nav-title">NAVIGATION</p>
+        <button class="nav-link active" data-page="dashboard">🏠 Dashboard</button>
+        <button class="nav-link" data-page="budget">📒 Budget Planner</button>
+        <button class="nav-link" data-page="expenses">🧾 Actual Expenses</button>
+        <button class="nav-link" data-page="savings">🐷 Saving Goals</button>
+        <button class="nav-link" data-page="shopping">🛒 Shopping List</button>
+      </nav>
+
+      <div class="month-card">
+        <p class="nav-title">SELECTED MONTH</p>
+        <input id="globalMonth" type="month" value="2026-05" />
+        <div class="month-summary">
+          <span>Budget</span><b id="sideBudget">HK$0</b>
+          <span>Expense</span><b id="sideExpense" class="danger">HK$0</b>
+          <span>Saving</span><b id="sideSaving" class="success">HK$0</b>
+          <span>Left</span><b id="sideLeft">HK$0</b>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h2 id="pageTitle">Monthly Dashboard</h2>
+          <p id="pageSubtitle">Track budget, actual expenses, saving and shopping items.</p>
+        </div>
+        <button id="resetDemoBtn" class="ghost-btn">Reset demo data</button>
+      </header>
+
+      <section id="dashboard" class="page active">
+        <div class="hero">
+          <div>
+            <h3>Welcome back 👋</h3>
+            <p>Here is your financial snapshot for <b class="selected-month-text">2026-05</b>.</p>
+          </div>
+          <div class="pill">★ Monthly Dashboard</div>
+        </div>
+
+        <div class="kpi-grid">
+          <article class="kpi-card">
+            <span class="kpi-icon green">💰</span>
+            <p>MONTHLY BUDGET</p>
+            <h3 id="kpiBudget">HK$0</h3>
+            <small>Planned spending limit</small>
+          </article>
+          <article class="kpi-card">
+            <span class="kpi-icon red">−</span>
+            <p>ACTUAL EXPENSE</p>
+            <h3 id="kpiExpense">HK$0</h3>
+            <small>Completed spending</small>
+          </article>
+          <article class="kpi-card">
+            <span class="kpi-icon purple">🐷</span>
+            <p>SAVING COLUMN</p>
+            <h3 id="kpiSaving">HK$0</h3>
+            <small>Saving / buffer allocated</small>
+          </article>
+          <article class="kpi-card">
+            <span class="kpi-icon blue">📈</span>
+            <p>BUDGET LEFT</p>
+            <h3 id="kpiLeft">HK$0</h3>
+            <small>Budget - expense - saving</small>
+          </article>
+        </div>
+
+        <div class="dashboard-grid">
+          <section class="panel wide">
+            <div class="panel-header">
+              <h3>Budget vs Actual</h3>
+              <span class="chip">By Category</span>
+            </div>
+            <div id="categoryChart" class="chart"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <h3>Saving Goals</h3>
+              <button class="text-btn" data-go-page="savings">View all</button>
+            </div>
+            <div id="savingPreview" class="stack-list"></div>
+          </section>
+
+          <section class="panel wide">
+            <div class="panel-header">
+              <h3>Recent Actual Expenses</h3>
+              <button class="text-btn" data-go-page="expenses">View all</button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th><th>Name</th><th>Category</th><th>Amount</th><th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="recentExpenseBody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <h3>Shopping Quick Check</h3>
+              <button class="text-btn" data-go-page="shopping">View all</button>
+            </div>
+            <div id="shoppingPreview" class="stack-list"></div>
+          </section>
+        </div>
+      </section>
+
+      <section id="budget" class="page">
+        <div class="section-heading">
+          <div>
+            <h3>Budget Planner</h3>
+            <p>Set monthly budget by category. Actual expense is calculated automatically.</p>
+          </div>
+        </div>
+
+        <form id="budgetForm" class="form-grid card-form">
+          <input type="month" id="budgetMonth" required />
+          <select id="budgetCategory" required></select>
+          <input type="number" id="budgetAmount" placeholder="Planned Budget (HKD)" min="0" step="0.01" required />
+          <input type="number" id="budgetSaving" placeholder="Saving / Buffer (HKD)" min="0" step="0.01" />
+          <button type="submit" class="primary-btn">Add Budget</button>
+        </form>
+
+        <section class="panel full">
+          <div class="panel-header">
+            <h3>Monthly Budget Table</h3>
+            <span class="chip">Actual & Saving included</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Month</th>
+                  <th>Category</th>
+                  <th>Budget</th>
+                  <th>Actual Expenses</th>
+                  <th>Saving Column</th>
+                  <th>Left</th>
+                  <th>Usage</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="budgetBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <section id="expenses" class="page">
+        <div class="section-heading">
+          <div>
+            <h3>Actual Expenses</h3>
+            <p>Record real spending. Only “Completed” items count into Dashboard actual expense.</p>
+          </div>
+        </div>
+
+        <form id="expenseForm" class="form-grid card-form">
+          <input type="date" id="expenseDate" required />
+          <input type="text" id="expenseName" placeholder="Expense name" required />
+          <select id="expenseCategory" required></select>
+          <input type="number" id="expenseAmount" placeholder="Amount (HKD)" min="0" step="0.01" required />
+          <select id="expenseStatus">
+            <option value="Completed">Completed</option>
+            <option value="Pending">Pending</option>
+          </select>
+          <button type="submit" class="primary-btn">Add Expense</button>
+        </form>
+
+        <section class="panel full">
+          <div class="panel-header">
+            <h3>Expense Records</h3>
+            <span class="chip">Selected month: <span class="selected-month-text">2026-05</span></span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th><th>Name</th><th>Category</th><th>Amount</th><th>Status</th><th></th>
+                </tr>
+              </thead>
+              <tbody id="expenseBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <section id="savings" class="page">
+        <div class="section-heading">
+          <div>
+            <h3>Saving Goals</h3>
+            <p>Track monthly saving targets and progress.</p>
+          </div>
+        </div>
+
+        <form id="savingForm" class="form-grid card-form">
+          <input type="month" id="savingMonth" required />
+          <input type="text" id="savingGoal" placeholder="Goal name" required />
+          <input type="number" id="savingTarget" placeholder="Target amount (HKD)" min="0" step="0.01" required />
+          <input type="number" id="savingSaved" placeholder="Saved amount (HKD)" min="0" step="0.01" required />
+          <button type="submit" class="primary-btn">Add Saving Goal</button>
+        </form>
+
+        <section class="panel full">
+          <div class="panel-header">
+            <h3>Saving Progress</h3>
+            <span class="chip">Auto progress bar</span>
+          </div>
+          <div id="savingList" class="goal-grid"></div>
+        </section>
+      </section>
+
+      <section id="shopping" class="page">
+        <div class="section-heading">
+          <div>
+            <h3>Shopping List</h3>
+            <p>Plan shopping items, estimate cost and convert bought items into actual expenses.</p>
+          </div>
+        </div>
+
+        <form id="shoppingForm" class="form-grid card-form">
+          <input type="text" id="shopItem" placeholder="Item name" required />
+          <select id="shopCategory" required></select>
+          <input type="number" id="shopQty" placeholder="Qty" min="1" step="1" required />
+          <input type="number" id="shopPrice" placeholder="Estimated price / item" min="0" step="0.01" required />
+          <select id="shopPriority">
+            <option value="High">High priority</option>
+            <option value="Medium">Medium priority</option>
+            <option value="Low">Low priority</option>
+          </select>
+          <button type="submit" class="primary-btn">Add Item</button>
+        </form>
+
+        <div class="kpi-grid small">
+          <article class="kpi-card compact">
+            <p>Total Estimated</p>
+            <h3 id="shopTotal">HK$0</h3>
+          </article>
+          <article class="kpi-card compact">
+            <p>Bought Items</p>
+            <h3 id="shopBought">0</h3>
+          </article>
+          <article class="kpi-card compact">
+            <p>Pending Items</p>
+            <h3 id="shopPending">0</h3>
+          </article>
+        </div>
+
+        <section class="panel full">
+          <div class="panel-header">
+            <h3>Shopping Items</h3>
+            <span class="chip">Tick bought → add to expense</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Bought</th><th>Item</th><th>Category</th><th>Qty</th><th>Estimate</th><th>Priority</th><th></th>
+                </tr>
+              </thead>
+              <tbody id="shoppingBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
